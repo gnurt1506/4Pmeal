@@ -56,14 +56,14 @@
 
     <p id="result" style="margin-top:10px;"></p>
 
-    <div id="list-area">
+    <div id="list-area" style="display: none;">
       <h3>✅ Những người sẽ đi:</h3>
       <ul id="list"></ul>
     </div>
   </div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbygPjiYQVdkyWtv20wIHejl-5cHTP614dj1PDfxd2cSomnv23yR2OhXknRM8qf4ne_Y/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwC-p-nDzGB1BYjkytxH6-5DoBiHsrPfVr_hQnIgkENq_wiOVNJ6b3MtkmHPB_GIGjC/exec";
 
     function handleSubmit() {
       const name = document.getElementById("name").value.trim();
@@ -79,10 +79,12 @@
       fetch(scriptURL, {
         method: "POST",
         body: JSON.stringify({ name, status }),
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        }
       })
-      .then((res) => res.text())
-      .then((text) => {
+      .then(res => res.text())
+      .then(text => {
         if (text.includes("Success")) {
           result.textContent = "✅ Gửi thành công!";
           result.style.color = "green";
@@ -92,7 +94,7 @@
           result.style.color = "red";
         }
       })
-      .catch((err) => {
+      .catch(err => {
         result.textContent = "❌ Lỗi: " + err;
         result.style.color = "red";
       });
@@ -102,13 +104,20 @@
       fetch(scriptURL)
         .then(res => res.json())
         .then(data => {
+          const listArea = document.getElementById("list-area");
           const list = document.getElementById("list");
           list.innerHTML = "";
-          data.forEach(name => {
-            const li = document.createElement("li");
-            li.textContent = name;
-            list.appendChild(li);
-          });
+
+          if (data.length > 0) {
+            listArea.style.display = "block";
+            data.forEach(name => {
+              const li = document.createElement("li");
+              li.textContent = name;
+              list.appendChild(li);
+            });
+          } else {
+            listArea.style.display = "none";
+          }
         });
     }
 
