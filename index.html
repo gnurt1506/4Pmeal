@@ -2,54 +2,112 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Khảo sát ăn tối nè công ty</title>
+  <title>Khảo sát ăn 5h chiều</title>
   <style>
-    body { font-family: sans-serif; background: #ffe6ec; padding: 40px; }
-    .container { background: white; padding: 30px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
-    input, select, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc; }
-    button { background: #ff4d88; color: white; border: none; cursor: pointer; }
-    button:hover { background: #e6005c; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #ffe6ec;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      padding-top: 50px;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(255, 105, 135, 0.2);
+      width: 400px;
+      text-align: center;
+    }
+    input, select {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    button {
+      background: #ff4d6d;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #e63956;
+    }
+    .error { color: red; margin-top: 10px; }
+    .success { color: green; margin-top: 10px; }
+    ul { text-align: left; margin-top: 20px; padding-left: 20px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>📋 Khảo sát đi ăn lúc 5h chiều</h2>
-    <input type="text" id="name" placeholder="Nhập tên của bạn" required>
+    <input type="text" id="name" placeholder="Tên của bạn" />
     <select id="status">
       <option value="Đi">Đi</option>
       <option value="Không đi">Không đi</option>
     </select>
     <button onclick="submitForm()">Gửi phản hồi</button>
-    <p id="message"></p>
+    <div id="message"></div>
+    <div id="result">
+      <h4>✅ Danh sách người đi:</h4>
+      <ul id="nameList"></ul>
+    </div>
   </div>
 
   <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxNFdmaBp7Ym36O9rVLzuj8xj4V7rWOxIc2tpE2QyxPdkpUyRcSHAtB80j-AcotiPKm/exec";
+
     function submitForm() {
       const name = document.getElementById("name").value.trim();
       const status = document.getElementById("status").value;
       const msg = document.getElementById("message");
 
       if (!name) {
-        msg.innerText = "⚠️ Vui lòng nhập tên!";
-        msg.style.color = "red";
+        msg.innerHTML = "<div class='error'>⚠️ Bạn phải nhập tên!</div>";
         return;
       }
 
-      fetch("https://script.google.com/macros/s/AKfycbxNFdmaBp7Ym36O9rVLzuj8xj4V7rWOxIc2tpE2QyxPdkpUyRcSHAtB80j-AcotiPKm/exec", {
+      fetch(scriptURL, {
         method: "POST",
-        body: JSON.stringify({ name: name, status: status }),
-        headers: {
-          "Content-Type": "application/json",
+        body: JSON.stringify({ name, status }),
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(res => res.text())
+      .then(data => {
+        if (data === "Success") {
+          msg.innerHTML = "<div class='success'>🎉 Gửi thành công!</div>";
+          document.getElementById("name").value = "";
+          fetchList();
+        } else {
+          msg.innerHTML = "<div class='error'>❌ Gửi thất bại. Thử lại.</div>";
         }
-      }).then(res => res.json()).then(data => {
-        msg.innerText = "✅ Cảm ơn bạn đã phản hồi!";
-        msg.style.color = "green";
-        document.getElementById("name").value = "";
-      }).catch(err => {
-        msg.innerText = "❌ Gửi thất bại. Thử lại sau.";
-        msg.style.color = "red";
+      })
+      .catch(() => {
+        msg.innerHTML = "<div class='error'>❌ Có lỗi xảy ra khi gửi.</div>";
       });
     }
+
+    function fetchList() {
+      fetch(scriptURL)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById("nameList");
+          list.innerHTML = "";
+          data.forEach(name => {
+            const li = document.createElement("li");
+            li.textContent = name;
+            list.appendChild(li);
+          });
+        });
+    }
+
+    window.onload = fetchList;
   </script>
 </body>
 </html>
