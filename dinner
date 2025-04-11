@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Khảo sát ăn tối nè công ty</title>
+  <style>
+    body { font-family: sans-serif; background: #ffe6ec; padding: 40px; }
+    .container { background: white; padding: 30px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    input, select, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc; }
+    button { background: #ff4d88; color: white; border: none; cursor: pointer; }
+    button:hover { background: #e6005c; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📋 Khảo sát đi ăn lúc 5h chiều</h2>
+    <input type="text" id="name" placeholder="Nhập tên của bạn" required>
+    <select id="status">
+      <option value="Đi">Đi</option>
+      <option value="Không đi">Không đi</option>
+    </select>
+    <button onclick="submitForm()">Gửi phản hồi</button>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    function submitForm() {
+      const name = document.getElementById("name").value.trim();
+      const status = document.getElementById("status").value;
+      const msg = document.getElementById("message");
+
+      if (!name) {
+        msg.innerText = "⚠️ Vui lòng nhập tên!";
+        msg.style.color = "red";
+        return;
+      }
+
+      fetch("https://script.google.com/macros/s/AKfycbxNFdmaBp7Ym36O9rVLzuj8xj4V7rWOxIc2tpE2QyxPdkpUyRcSHAtB80j-AcotiPKm/exec", {
+        method: "POST",
+        body: JSON.stringify({ name: name, status: status }),
+        headers: {
+          "Content-Type": "application/json",
+        }
+      }).then(res => res.json()).then(data => {
+        msg.innerText = "✅ Cảm ơn bạn đã phản hồi!";
+        msg.style.color = "green";
+        document.getElementById("name").value = "";
+      }).catch(err => {
+        msg.innerText = "❌ Gửi thất bại. Thử lại sau.";
+        msg.style.color = "red";
+      });
+    }
+  </script>
+</body>
+</html>
